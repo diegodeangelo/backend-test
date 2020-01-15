@@ -75,10 +75,10 @@ class Event
     private $place;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\User", inversedBy="event", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\OneToOne(targetEntity="App\Entity\User", inversedBy="user")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
-    private $user_id;
+    private $user;
 
     /**
      * @Assert\Choice(callback="getStatusOptions", message="Choose a valid status.")
@@ -129,7 +129,7 @@ class Event
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): string
     {
         return $this->date;
     }
@@ -141,7 +141,7 @@ class Event
         return $this;
     }
 
-    public function getTime(): ?\DateTimeInterface
+    public function getTime(): string
     {
         return $this->time;
     }
@@ -165,14 +165,14 @@ class Event
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getUser(): ?User
     {
         return $this->user_id;
     }
 
-    public function setUserId(User $user_id): self
+    public function setUser(User $user): self
     {
-        $this->user_id = $user_id;
+        $this->user = $user;
 
         return $this;
     }
