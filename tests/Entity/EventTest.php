@@ -3,7 +3,6 @@
 namespace App\Tests;
 
 use App\Entity\Event;
-use App\Utils\Status;
 use PHPUnit\Framework\TestCase;
 
 class EventTest extends TestCase

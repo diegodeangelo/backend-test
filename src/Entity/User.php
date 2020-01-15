@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Utils\Sanitize;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -60,6 +62,16 @@ class User
      * @ORM\Column(type="string", length=255)
      */
     private $state;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Friendship", mappedBy="friend_id")
+     */
+    private $friendships;
+
+    public function __construct()
+    {
+        $this->friendships = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -146,6 +158,34 @@ class User
     public function setState(string $state): self
     {
         $this->state = Sanitize::string($state);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Friendship[]
+     */
+    public function getFriendships(): Collection
+    {
+        return $this->friendships;
+    }
+
+    public function addFriendship(Friendship $friendship): self
+    {
+        if (!$this->friendships->contains($friendship)) {
+            $this->friendships[] = $friendship;
+            $friendship->addFriendId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFriendship(Friendship $friendship): self
+    {
+        if ($this->friendships->contains($friendship)) {
+            $this->friendships->removeElement($friendship);
+            $friendship->removeFriendId($this);
+        }
 
         return $this;
     }
