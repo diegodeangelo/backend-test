@@ -7,7 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\EventRepository")
+ * @ORM\Entity
+ * @ORM\Table(name="Event")
  */
 class Event
 {
@@ -80,7 +81,7 @@ class Event
     private $user_id;
 
     /**
-     * @Assert\Choice(choices=Author::getStatusOptions(), message="Choose a valid status.")
+     * @Assert\Choice(callback=getStatusOptions, message="Choose a valid status.")
      *
      * @ORM\Column(type="integer")
      */
