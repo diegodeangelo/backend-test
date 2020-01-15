@@ -81,7 +81,7 @@ class Event
     private $user_id;
 
     /**
-     * @Assert\Choice(callback=getStatusOptions, message="Choose a valid status.")
+     * @Assert\Choice(callback="getStatusOptions", message="Choose a valid status.")
      *
      * @ORM\Column(type="integer")
      */
@@ -134,7 +134,7 @@ class Event
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(string $date): self
     {
         $this->date = $date;
 
@@ -146,7 +146,7 @@ class Event
         return $this->time;
     }
 
-    public function setTime(\DateTimeInterface $time): self
+    public function setTime(string $time): self
     {
         $this->time = $time;
 

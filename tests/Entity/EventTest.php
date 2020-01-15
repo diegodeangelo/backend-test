@@ -33,9 +33,9 @@ class EventTest extends TestCase
 		$date = new \Datetime();
 		$date->setDate(2020, 1, 15);
 
-		$this->event->setDate($date);
+		$this->event->setDate($date->format("Y-m-d"));
 
-		$this->assertEquals("2020-01-15", $this->event->getDate()->format('Y-m-d'));
+		$this->assertEquals("2020-01-15", $this->event->getDate());
 	}
 
 	public function testSetAndGetTime()
@@ -43,9 +43,9 @@ class EventTest extends TestCase
 		$time = new \Datetime();
 		$time->setTime(8, 30, 0);
 
-		$this->event->setTime($time);
+		$this->event->setTime($time->format("H:i:s"));
 
-		$this->assertEquals("08:30:00", $this->event->getTime()->format('H:i:s'));
+		$this->assertEquals("08:30:00", $this->event->getTime());
 	}
 
 	public function testSetAndGetStatus()
