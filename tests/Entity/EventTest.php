@@ -58,11 +58,9 @@ class EventTest extends TestCase
 	public function testSetAndGetStatus()
 	{
 		$this->event->setStatus(Event::STATUS_CANCELLED);
-
 		$this->assertEquals(0, $this->event->getStatus());
 
 		$this->event->setStatus(Event::STATUS_ACTIVE);
-
 		$this->assertEquals(1, $this->event->getStatus());
 	}
 }
