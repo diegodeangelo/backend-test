@@ -48,6 +48,13 @@ class EventTest extends TestCase
 		$this->assertEquals("08:30:00", $this->event->getTime());
 	}
 
+	public function testSetAndGetPlace()
+	{
+		$this->event->setPlace("Place Test");
+
+		$this->assertEquals("Place Test", $this->event->getPlace());
+	}
+
 	public function testSetAndGetStatus()
 	{
 		$this->event->setStatus(Event::STATUS_CANCELLED);
