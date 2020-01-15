@@ -9,6 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity
  * @ORM\Table(name="Event")
+ *
+ * @Assert\Callback({"App\Utils\StatusValidator", "validate"})
  */
 class Event
 {
@@ -81,24 +83,10 @@ class Event
     private $user;
 
     /**
-     * @Assert\Choice(callback="getStatusOptions", message="Choose a valid status.")
      *
      * @ORM\Column(type="integer")
      */
     private $status;
-
-    public static function getStatusOptions()
-    {
-        $reflector = new \ReflectionClass(__CLASS__);
-
-        $status_constants = array_filter($reflector->getConstants(), function($key) {
-            $prefix = "STATUS_";
-
-            return strpos($key, $prefix) !== false;
-        }, ARRAY_FILTER_USE_KEY);
-
-        return array_values($status_constants);
-    }
 
     public function getId(): ?int
     {

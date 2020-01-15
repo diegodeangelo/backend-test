@@ -3,6 +3,7 @@
 namespace App\Tests;
 
 use App\Entity\Event;
+use App\Utils\Status;
 use PHPUnit\Framework\TestCase;
 
 class EventTest extends TestCase
@@ -64,13 +65,5 @@ class EventTest extends TestCase
 		$this->event->setStatus(Event::STATUS_ACTIVE);
 
 		$this->assertEquals(1, $this->event->getStatus());
-	}
-
-	public function testgetStatusOptions()
-	{
-		$eventsByReflection = Event::getStatusOptions();
-		$eventsByConstants = [Event::STATUS_CANCELLED, Event::STATUS_ACTIVE];
-
-		$this->assertEquals(0, count(array_diff($eventsByReflection, $eventsByConstants)));
 	}
 }
