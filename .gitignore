@@ -10,6 +10,7 @@
 ###< symfony/framework-bundle ###
 
 composer.lock
+/jwt/
 
 ###> symfony/phpunit-bridge ###
 .phpunit
