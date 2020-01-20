@@ -1,7 +1,6 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory: { memory: null }
         users:
             entity:
                 # the class of the entity that represents users
@@ -24,6 +23,7 @@ security:
             pattern:   ^/api
             stateless: true
             guard:
+                provider: users
                 authenticators:
                     - lexik_jwt_authentication.jwt_token_authenticator
         main:
