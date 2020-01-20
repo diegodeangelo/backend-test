@@ -1,41 +1,41 @@
 <?php
 namespace App\Tests\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\Response;
+use Lexik\Bundle\JWTAuthenticationBundle\Tests\Functional\TestCase;
+use Lexik\Bundle\JWTAuthenticationBundle\Response\JWTAuthenticationSuccessResponse;
 
-class PrivateAPiControllerTest extends WebTestCase
+class PrivateApiControllerTest extends TestCase
 {
-	protected function createAuthenticatedClient($username = 'user', $password = 'password')
+	protected $token;
+
+	public function setUp()
 	{
-	    $client = static::createClient();
-
-	    $client->request(
-			'POST',
-			'/api/login_check',
-			array(),
-			array(),
-			array('CONTENT_TYPE' => 'application/json'),
-			json_encode(array(
-				'username' => $username,
-				'password' => $password,
-			))
-		);
-
-	    $data = json_decode($client->getResponse()->getContent(), true);
-
-	    $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
-
-	    return $client;
+		static::$client = static::createClient();
 	}
 
-	/**
-	 * test getPagesAction
-	 */
-	public function testGetPages()
+	public function testGetToken()
 	{
-	    $client = $this->createAuthenticatedClient();
-	    $client->request('GET', '/api/event/all');
-	    // ... 
+	    static::$client->request('POST', '/login_check', ['_username' => 'lexik', '_password' => 'dummy']);
+
+	    $response = static::$client->getResponse();
+
+        $this->assertInstanceOf(JWTAuthenticationSuccessResponse::class, $response);
+        $this->assertTrue($response->isSuccessful());
+
+        $body = json_decode($response->getContent(), true);
+
+        $this->assertArrayHasKey('token', $body, 'The response should have a "token" key containing a JWT Token.');
+	    
+	    $this->assertEquals(200, static::$client->getResponse()->getStatusCode());
+
+	    $this->token = $body['token'];
+	}
+
+	public function testGetEventEndpoint()
+	{
+    	static::$client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $this->token));
+		static::$client->request('GET', '/event/all');
+
+		$this->assertEquals(200, static::$client->getResponse()->getStatusCode());
 	}
 }
