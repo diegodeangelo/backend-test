@@ -12,6 +12,6 @@ class EventController extends AbstractController
      */
     public function index()
     {
-        
+        return $this->json(new \stdClass());
     }
 }

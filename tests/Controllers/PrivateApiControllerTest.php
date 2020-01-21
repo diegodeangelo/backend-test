@@ -1,41 +1,40 @@
 <?php
 namespace App\Tests\Controller;
 
-use Lexik\Bundle\JWTAuthenticationBundle\Tests\Functional\TestCase;
-use Lexik\Bundle\JWTAuthenticationBundle\Response\JWTAuthenticationSuccessResponse;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+//use Lexik\Bundle\JWTAuthenticationBundle\Response\JWTAuthenticationSuccessResponse;
 
-class PrivateApiControllerTest extends TestCase
+class PrivateApiControllerTest extends WebTestCase
 {
-	protected $token;
-
-	public function setUp()
+	protected function createAuthenticatedClient($username = 'admin', $password = '123456')
 	{
-		static::$client = static::createClient();
-	}
+	    $client = static::createClient();
 
-	public function testGetToken()
-	{
-	    static::$client->request('POST', '/login_check', ['_username' => 'lexik', '_password' => 'dummy']);
+	    $client->request(
+	      'POST',
+	      '/api/login_check',
+	      array(),
+	      array(),
+	      array('CONTENT_TYPE' => 'application/json'),
+	      json_encode(array(
+	        'username' => $username,
+	        'password' => $password,
+	        ))
+	      );
 
-	    $response = static::$client->getResponse();
+	    $data = json_decode($client->getResponse()->getContent(), true);
 
-        $this->assertInstanceOf(JWTAuthenticationSuccessResponse::class, $response);
-        $this->assertTrue($response->isSuccessful());
+	    $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['token']));
 
-        $body = json_decode($response->getContent(), true);
-
-        $this->assertArrayHasKey('token', $body, 'The response should have a "token" key containing a JWT Token.');
-	    
-	    $this->assertEquals(200, static::$client->getResponse()->getStatusCode());
-
-	    $this->token = $body['token'];
+	    return $client;
 	}
 
 	public function testGetEventEndpoint()
 	{
-    	static::$client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $this->token));
-		static::$client->request('GET', '/event/all');
+		$client = $this->createAuthenticatedClient();
 
-		$this->assertEquals(200, static::$client->getResponse()->getStatusCode());
+		$client->request('GET', '/api/event/all');
+
+		$this->assertEquals(200, $client->getResponse()->getStatusCode());
 	}
 }
