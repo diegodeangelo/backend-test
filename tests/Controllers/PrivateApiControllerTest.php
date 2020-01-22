@@ -2,7 +2,6 @@
 namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-//use Lexik\Bundle\JWTAuthenticationBundle\Response\JWTAuthenticationSuccessResponse;
 
 class PrivateApiControllerTest extends WebTestCase
 {
@@ -16,10 +15,10 @@ class PrivateApiControllerTest extends WebTestCase
 	      array(),
 	      array(),
 	      array('CONTENT_TYPE' => 'application/json'),
-	      json_encode(array(
-	        'username' => $username,
-	        'password' => $password,
-	        ))
+		      json_encode(array(
+					'username' => $username,
+					'password' => $password,
+				))
 	      );
 
 	    $data = json_decode($client->getResponse()->getContent(), true);
@@ -29,12 +28,23 @@ class PrivateApiControllerTest extends WebTestCase
 	    return $client;
 	}
 
-	public function testGetEventEndpoint()
+	/**
+     * @dataProvider endpointUrlProvider
+     */
+	public function testGetUnauthorizedEndpoint($endpoint)
 	{
-		$client = $this->createAuthenticatedClient();
+		$client = static::createClient();
 
-		$client->request('GET', '/api/event/all');
+		$client->request('GET', $endpoint);
 
-		$this->assertEquals(200, $client->getResponse()->getStatusCode());
+		$this->assertEquals(401, $client->getResponse()->getStatusCode());
+		$this->assertArrayHasKey("message", json_decode($client->getResponse()->getContent(), true));
 	}
+
+	public function endpointUrlProvider()
+    {
+		return [
+			["/api/event/all"]
+		];
+    }
 }

@@ -1,5 +1,8 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    encoders:
+        App\Entity\User:
+            algorithm: auto
+
     providers:
         users:
             entity:
@@ -7,6 +10,7 @@ security:
                 class: 'App\Entity\User'
                 # the property to query by - e.g. username, email, etc
                 property: 'email'
+    
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -20,8 +24,16 @@ security:
                 check_path:               /api/login_check
                 success_handler:          lexik_jwt_authentication.handler.authentication_success
                 failure_handler:          lexik_jwt_authentication.handler.authentication_failure
+        event_public:
+            pattern: ^/api/event
+            stateless: true
+            anonymous: true
+        registration_public:
+            pattern: ^/api/registration
+            stateless: true
+            anonymous: true
         api:
-            pattern:   ^/api
+            pattern:   ^/api/
             stateless: true
             guard:
                 provider: users
@@ -31,5 +43,8 @@ security:
             anonymous: lazy
 
     access_control:
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/login,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/event,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/registration,   roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/event/new,      roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api,                roles: IS_AUTHENTICATED_FULLY }
