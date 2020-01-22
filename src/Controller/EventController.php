@@ -76,9 +76,9 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/new", name="event_new")
+     * @Route("/event/edit/{id}", name="event_new")
      */
-    public function new(Request $request, ValidatorInterface $validator, Security $security )
+    public function edit($id, Request $request, ValidatorInterface $validator, Security $security)
     {
     	$name = $request->get("name");
     	$email = $request->get("email");
@@ -86,8 +86,19 @@ class EventController extends AbstractController
     	$date = $request->get("date");
     	$time = $request->get("time");
     	$place = $request->get("place");
+    	$status = $request->get("status") ?? App\Entity\User::STATUS_ACTIVE;
 
-		$user = new App\Entity\User();
+    	if (isset($id)) {
+        	$user = $entityManager->getRepository(Event::class)->find($id);
+
+        	if (!$user) {
+		        throw $this->createNotFoundException(
+		            'No user found for id '.$id
+		        );
+		    }
+        } else {
+        	$user = new App\Entity\User();
+        }
 
 		$user->setName($name)
 			 ->setEmail($email)
@@ -96,16 +107,26 @@ class EventController extends AbstractController
 			 ->setTime($time)
 			 ->setPlace($place)
 			 ->setUser($security->getUser())
-			 ->setStatus(App\Entity\User::STATUS_ACTIVE);
+			 ->setStatus($status);
 
 		$errors = $validator->validate($user);
 
         if (count($errors) > 0) {
             return $this->json(json_encode(["message" => $errors)), 400);
         }
-
+        
         $entityManager = $this->getDoctrine()->getRepository(Event::class);
 
         $entityManager->flush();
+    }
+
+    /**
+     * @Route("/event/cancel/{id}", name="event_new")
+     */
+    public function cancel($id, Request $request)
+    {
+    	$request->request->set('status', Event::STATUS_CANCELLED);
+
+    	$this->edit($id);
     }
 }

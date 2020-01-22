@@ -43,7 +43,7 @@ class Friendship
     private $user_id;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\User", inversedBy="friendships")
+     * @ORM\OneToMany(targetEntity="App\Entity\User", inversedBy="friendships")
      */
     private $friend_id;
 
