@@ -63,14 +63,11 @@ class User
      */
     private $state;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Friendship", mappedBy="friend_id")
-     */
-    private $friendships;
+    
 
     public function __construct()
     {
-        $this->friendships = new ArrayCollection();
+        //$this->friendships = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -165,7 +162,7 @@ class User
     /**
      * @return Collection|Friendship[]
      */
-    public function getFriendships(): Collection
+    /*public function getFriendships(): Collection
     {
         return $this->friendships;
     }
@@ -188,5 +185,5 @@ class User
         }
 
         return $this;
-    }
+    }*/
 }

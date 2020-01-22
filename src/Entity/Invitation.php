@@ -9,12 +9,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Friendship")
+ * @ORM\Table(name="invitation")
  *
  * @Assert\Callback({"App\Utils\StatusValidator", "validate"})
  */
-class Friendship
+class Invitation
 {
+    /**
+     * @var integer Friendship status rejected
+     */
+    const STATUS_REJECTED = 0;
+
+    /**
+     * @var integer Friendship status confirmed
+     */
+    const STATUS_CONFIRMED = 1;
+
+    /**
+     * @var integer Friendship status pending
+     */
+    const STATUS_PENDING = 2;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -25,16 +40,21 @@ class Friendship
     /**
      * @ORM\Column(type="integer")
      */
-    private $event_id;
+    private $user_id;
 
     /**
      * @ORM\Column(type="integer")
      */
     private $friend_id;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $status;
+
     public function __construct()
     {
-        $this->friend = new ArrayCollection();
+        $this->friend_id = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -42,14 +62,14 @@ class Friendship
         return $this->id;
     }
 
-    public function getEventId(): ?int
+    public function getUserId(): ?int
     {
-        return $this->event_id;
+        return $this->user_id;
     }
 
-    public function setEventId(int $user_id): self
+    public function setUserId(int $user_id): self
     {
-        $this->event_id = $event_id;
+        $this->user_id = $user_id;
 
         return $this;
     }
@@ -76,6 +96,18 @@ class Friendship
         if ($this->friend_id->contains($friendId)) {
             $this->friend_id->removeElement($friendId);
         }
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

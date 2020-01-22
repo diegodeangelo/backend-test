@@ -8,13 +8,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Event")
+ * @ORM\Table(name="event")
  *
  * @ORM\Entity(repositoryClass="App\Repository\EventRepository")
  *
  * @Assert\Callback({"App\Utils\StatusValidator", "validate"})
  */
-class Event
+class Event implements \JsonSerializable
 {
     /**
      * @var integer Event status cancelled
@@ -79,16 +79,22 @@ class Event
     private $place;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\User", inversedBy="user")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @Assert\NotBlank
+     *
+     * @ORM\Column(type="integer")
      */
-    private $user;
+    private $user_id;
 
     /**
      *
      * @ORM\Column(type="integer")
      */
     private $status;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\User")
+     */
+    private $user;
 
     public function getId(): ?int
     {
@@ -119,24 +125,24 @@ class Event
         return $this;
     }
 
-    public function getDate(): string
+    public function getDate(): \DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(string $date): self
+    public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
 
         return $this;
     }
 
-    public function getTime(): string
+    public function getTime(): \DateTimeInterface
     {
         return $this->time;
     }
 
-    public function setTime(string $time): self
+    public function setTime(\DateTimeInterface $time): self
     {
         $this->time = $time;
 
@@ -157,7 +163,7 @@ class Event
 
     public function getUser(): ?User
     {
-        return $this->user_id;
+        return $this->user;
     }
 
     public function setUser(User $user): self
@@ -177,5 +183,19 @@ class Event
         $this->status = $status;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return array(
+            'id'            => $this->getId(),
+            'name'          => $this->getName(),
+            'description'   => $this->getDescription(),
+            'date'          => $this->getDate()->format('Y-m-d'),
+            'time'          => $this->getTime()->format('H:i:s'),
+            'place'         => $this->getPlace(),
+            'user'          => $this->getUser()->getName(),
+            'status'        => $this->getStatus()
+        );
     }
 }

@@ -5,20 +5,30 @@ namespace App\Controller;
 use App\Entity\Event;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Knp\Component\Pager\PaginatorInterface;
 
 class EventController extends AbstractController
 {
+    const EVENTS_PER_PAGE = 10;
+
 	private $repository;
 	private $page;
+    private $paginator;
+
+    public function __construct(PaginatorInterface $paginator)
+    {
+        $this->paginator = $paginator;
+    }
 
 	private function getEventsBetween($dateStart, $dateEnd)
 	{
 		$events = $this->repository->findBetween($dateStart, $dateEnd);
 
-		return getPaginatedResults($events);
+		return $this->getPaginatedResults($events);
 	}
 
 	private function getEventsByRegion($place)
@@ -27,19 +37,19 @@ class EventController extends AbstractController
 			"place" => $place
 		]);
 
-		return getPaginatedResults($events);
+		return $this->getPaginatedResults($events);
 	}
 
 	private function getAllEvents()
 	{
-		return getPaginatedResults($this->repository->findAll());
+		return $this->getPaginatedResults($this->repository->findAll());
 	}
 
-	private function getPaginatedResults($events, PaginatorInterface $paginator)
+	private function getPaginatedResults($events)
 	{
-		$events = $paginator->paginate($events, $this->page, 10);
+		$events = $this->paginator->paginate($events, $this->page, self::EVENTS_PER_PAGE);
 
-        return $this->json($events);
+        return json_encode($events);
 	}
 
     /**
@@ -47,14 +57,14 @@ class EventController extends AbstractController
      */
     public function index(Request $request)
     {
-    	$this->page = $request->get("page") ?? 1;
+    	$this->page = $request->get("page", 1);
     	$dateStart = $request->get("dateStart");
     	$dateEnd = $request->get("dateEnd");
     	$place = $request->get("place");
 
     	$this->repository = $this->getDoctrine()->getRepository(Event::class);
 
-    	if (isset($dateStart)) && isset($dateEnd)) {
+    	if (isset($dateStart) && isset($dateEnd)) {
 			return $this->getEventsBetween($dateStart, $dateEnd);
 		}
 
@@ -62,11 +72,11 @@ class EventController extends AbstractController
 			return $this->getEventsByRegion($place);
 		}
 
-		return $this->getAllEvents();
+		return JsonResponse::fromJsonString($this->getAllEvents());
     }
 
     /**
-     * @Route("/event/{id}", name="event_show")
+     * @Route("/event/show/{id}", name="event_show")
      */
     public function show($id)
     {
@@ -112,7 +122,7 @@ class EventController extends AbstractController
 		$errors = $validator->validate($user);
 
         if (count($errors) > 0) {
-            return $this->json(json_encode(["message" => $errors)), 400);
+            return $this->json(["message" => $errors], 400);
         }
         
         $entityManager = $this->getDoctrine()->getRepository(Event::class);
