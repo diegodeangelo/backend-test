@@ -20,22 +20,8 @@ class UserController extends AbstractController
     	$city = $request->get("city");
     	$state = $request->get("state");
 
-		$user = new App\Entity\User();
+		
 
-		$user->setName($name)
-			 ->setEmail($email)
-			 ->setPassword($encoder->encodePassword($user, $plainPassword))
-			 ->setCity($city)
-			 ->setState($state);
-
-		$errors = $validator->validate($user);
-
-        if (count($errors) > 0) {
-            return $this->json(json_encode(["message" => $errors)), 400);
-        }
-
-        $entityManager = $this->getDoctrine()->getRepository(User::class);
-
-        $entityManager->flush();
+		
 	}
 }

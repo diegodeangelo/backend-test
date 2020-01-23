@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Event;
 use App\Entity\User;
 use App\Utils\Validated;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EventService extends Service
 {
@@ -14,13 +15,12 @@ class EventService extends Service
 	{
 		$offset = ($page == 1) ? (0) : (2*($page-1)); // this calculate the offset of pagination
 
-		$em = $this->entityManager;
+		$qb = $this->entityManager->getRepository(Event::class)->createQueryBuilder('e');
 
-		$qb = $em->getRepository(Event::class)->createQueryBuilder('e');
-
+        // Validate page
         Validated::numberPositive($page);
 
-        if (!empty($date['dateStart']) && !empty($date['dateEnd'])) {
+        if (!empty($data['dateStart']) && !empty($data['dateEnd'])) {
             // Validate dateStart
             Validated::date($data['dateStart']);
 
@@ -40,30 +40,39 @@ class EventService extends Service
                ->setParameter('place', '%' . $data['place'] . '%');
         }
 
-        $qb = $qb->where('e.date BETWEEN :dateStart AND :dateEnd')
-    		     ->where('e.date >= :dateStart')
-    		     ->andWhere('e.date < :dateEnd')
-                 ->orWhere('e.place LIKE :place')
-                 ->setParameter('dateStart', $data['dateStart'] . " 00:00:00")
-                 ->setParameter('dateEnd', $data['dateEnd'] . " 23:59:59")
-                 ->setParameter('place', '%' . $data['place'] . '%')
-                 ->setFirstResult($offset)
-                 ->setMaxResults(self::EVENTS_PER_PAGE)
-                 ->getQuery();
+        $qb->where('e.date BETWEEN :dateStart AND :dateEnd')
+           ->where('e.date >= :dateStart')
+           ->andWhere('e.date < :dateEnd')
+           ->orWhere('e.place LIKE :place')
+           ->setParameter('dateStart', $data['dateStart'] . " 00:00:00")
+           ->setParameter('dateEnd', $data['dateEnd'] . " 23:59:59")
+           ->setParameter('place', '%' . $data['place'] . '%')
+           ->setFirstResult($offset)
+           ->setMaxResults(self::EVENTS_PER_PAGE);
+        
+        $qb = $qb->getQuery();
 
-        $em->flush();
+        $this->entityManager->flush();
 
         return $qb->getArrayResult();
 	}
 
+    public function show($id)
+    {
+        $event = $this->entityManager->getRepository(Event::class)->find($id);
+
+        if (!$event)
+            throw new NotFoundHttpException("Event not found");
+
+        return $event;
+    }
+
     public function save($data)
     {
-        $em = $this->entityManager;
-
-        $user = $this->em->getRepository(User::class)->find($data['user_id']);
+        $user = $this->entityManager->getRepository(User::class)->find($data['user_id']);
         
-        if (!isset($user))
-            throw new Exception("User not found", 1);
+        if (!$user)
+            throw new NotFoundHttpException("User not found");
 
         $event = new Event();
 
@@ -74,5 +83,8 @@ class EventService extends Service
               ->setPlace($data['place'])
               ->setUserId($data['user_id'])
               ->setStatus($data['status']);
+        
+        $this->entityManager->persist($event);
+        $this->entityManager->flush();
     }
 }

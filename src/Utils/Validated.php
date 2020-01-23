@@ -36,6 +36,15 @@ class Validated
         self::validate($number, $nonNegative);
 	}
 
+	public static function email($email)
+	{
+		$email = [
+            new Assert\Email(),
+        ];
+
+        self::validate($number, $email);
+	}
+
 	public static function validate($value, $constraints)
 	{
 		$violations = Validation::createValidator()->validate($value, $constraints);

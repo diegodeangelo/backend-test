@@ -2,14 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\Event;
 use App\Service\EventService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class EventController extends AbstractController
 {
@@ -46,7 +42,7 @@ class EventController extends AbstractController
      */
     public function show($id)
     {
-    	$events = $this->getDoctrine()->getRepository(Event::class)->find($id);
+    	$events = json_encode($this->eventService->show($id));
 
     	return $this->json($events);
     }
@@ -54,7 +50,7 @@ class EventController extends AbstractController
     /**
      * @Route("/event/edit/{id}", name="event_new")
      */
-    public function edit($id, Request $request, ValidatorInterface $validator, Security $security)
+    /*public function edit($id, Request $request, ValidatorInterface $validator, Security $security)
     {
     	$name = $request->get("name");
     	$email = $request->get("email");
@@ -94,15 +90,15 @@ class EventController extends AbstractController
         $entityManager = $this->getDoctrine()->getRepository(Event::class);
 
         $entityManager->flush();
-    }
+    }*/
 
     /**
      * @Route("/event/cancel/{id}", name="event_new")
      */
-    public function cancel($id, Request $request)
+    /*public function cancel($id, Request $request)
     {
     	$request->request->set('status', Event::STATUS_CANCELLED);
 
     	$this->edit($id);
-    }
+    }*/
 }

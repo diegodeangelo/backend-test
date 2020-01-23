@@ -10,8 +10,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity
  * @ORM\Table(name="event")
  *
- * @ORM\Entity(repositoryClass="App\Repository\EventRepository")
- *
  * @Assert\Callback({"App\Utils\StatusValidator", "validate"})
  */
 class Event implements \JsonSerializable
