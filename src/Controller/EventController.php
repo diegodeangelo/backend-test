@@ -3,76 +3,42 @@
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Service\EventService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Knp\Component\Pager\PaginatorInterface;
 
 class EventController extends AbstractController
 {
-    const EVENTS_PER_PAGE = 10;
+    private $eventService;
 
-	private $repository;
-	private $page;
-    private $paginator;
-
-    public function __construct(PaginatorInterface $paginator)
+    public function __construct(EventService $eventService)
     {
-        $this->paginator = $paginator;
+        $this->eventService = $eventService;
     }
-
-	private function getEventsBetween($dateStart, $dateEnd)
-	{
-		$events = $this->repository->findBetween($dateStart, $dateEnd);
-
-		return $this->getPaginatedResults($events);
-	}
-
-	private function getEventsByRegion($place)
-	{
-		$events = $this->repository->findBy([
-			"place" => $place
-		]);
-
-		return $this->getPaginatedResults($events);
-	}
-
-	private function getAllEvents()
-	{
-		return $this->getPaginatedResults($this->repository->findAll());
-	}
-
-	private function getPaginatedResults($events)
-	{
-		$events = $this->paginator->paginate($events, $this->page, self::EVENTS_PER_PAGE);
-
-        return json_encode($events);
-	}
 
     /**
      * @Route("/event/all", name="event_index")
      */
     public function index(Request $request)
     {
-    	$this->page = $request->get("page", 1);
+    	$page = $request->get("page", 1);
     	$dateStart = $request->get("dateStart");
     	$dateEnd = $request->get("dateEnd");
     	$place = $request->get("place");
 
-    	$this->repository = $this->getDoctrine()->getRepository(Event::class);
+        $data = [
+            'dateStart'     => $dateStart,
+            'dateEnd'       => $dateEnd,
+            'place'         => $place
+        ];
 
-    	if (isset($dateStart) && isset($dateEnd)) {
-			return $this->getEventsBetween($dateStart, $dateEnd);
-		}
+        $events = json_encode($this->eventService->search($data, $page));
 
-		if (isset($place)) {
-			return $this->getEventsByRegion($place);
-		}
-
-		return JsonResponse::fromJsonString($this->getAllEvents());
+		return $this->json($events);
     }
 
     /**

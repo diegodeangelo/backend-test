@@ -166,11 +166,16 @@ class Event implements \JsonSerializable
         return $this->user;
     }
 
-    public function setUser(User $user): self
+    public function setUserId(integer $user_id) : integer
     {
-        $this->user = $user;
+        $this->user_id = $user_id;
 
         return $this;
+    }
+
+    public function getUserId(): integer
+    {
+        return $this->user_id;
     }
 
     public function getStatus(): ?int
