@@ -4,7 +4,8 @@ namespace App\Service;
 
 use App\Entity\Event;
 use App\Entity\User;
-use App\Utils\Validated;
+use App\Service\Service;
+use Respect\Validation\Validator as v;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -14,25 +15,25 @@ class EventService extends Service
 
 	public function search($data, $page = 1)
 	{
-		$offset = ($page == 1) ? (0) : (2*($page-1)); // this calculate the offset of pagination
+        // Validate page
+        v::not(v::negative())->setName('"page"')->check($page);
+
+		$offset = ($page == 1) ? (0) : (self::EVENTS_PER_PAGE*($page-1)); // this calculate the offset of pagination
 
 		$qb = $this->entityManager->getRepository(Event::class)->createQueryBuilder('e');
 
-        // Validate page
-        Validated::numberPositive($page);
-
         if (!empty($data['dateStart']) && !empty($data['dateEnd'])) {
             // Validate dateStart
-            Validated::date($data['dateStart']);
+            v::date()->setName('"dateStart"')->check($data['dateStart']);
 
             $qb->andWhere('e.date >= :dateStart')
-               ->setParameter('dateStart', $data['dateStart'] . ' 00:00:00');
+               ->setParameter('dateStart', $data['dateStart']);
 
             // Validate dateEnd
-            Validated::date($data['dateEnd']);
+            v::date()->setName('"dateEnd"')->check($data['dateEnd']);
 
             $qb->andWhere('event.date <= :dateEnd')
-               ->setParameter('dateEnd', $data['dateEnd'] . ' 23:59:59');
+               ->setParameter('dateEnd', $data['dateEnd']);
         }
 
         // Validate place
@@ -41,17 +42,9 @@ class EventService extends Service
                ->setParameter('place', '%' . $data['place'] . '%');
         }
 
-        $qb->where('e.date BETWEEN :dateStart AND :dateEnd')
-           ->where('e.date >= :dateStart')
-           ->andWhere('e.date < :dateEnd')
-           ->orWhere('e.place LIKE :place')
-           ->setParameter('dateStart', $data['dateStart'] . " 00:00:00")
-           ->setParameter('dateEnd', $data['dateEnd'] . " 23:59:59")
-           ->setParameter('place', '%' . $data['place'] . '%')
-           ->setFirstResult($offset)
-           ->setMaxResults(self::EVENTS_PER_PAGE);
-        
-        $qb = $qb->getQuery();
+        $qb = $qb->setFirstResult($offset)
+                 ->setMaxResults(self::EVENTS_PER_PAGE)
+                 ->getQuery();
 
         $this->entityManager->flush();
 
@@ -90,7 +83,7 @@ class EventService extends Service
 
         Validated::entity($event);
         
-        $this->entityManager->persist($event);
-        $this->entityManager->flush();
+        /*$this->entityManager->persist($event);
+        $this->entityManager->flush();*/
     }
 }

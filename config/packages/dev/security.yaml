@@ -29,7 +29,7 @@ security:
             stateless: true
             anonymous: true
         registration_public:
-            pattern: ^/api/registration
+            pattern: ^/api/user/registration
             stateless: true
             anonymous: true
         api:
@@ -48,4 +48,4 @@ security:
         #- { path: ^/api/registration,   roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #- { path: ^/api/event/new,      roles: IS_AUTHENTICATED_FULLY }
         #- { path: ^/api,                roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api,                roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/event,                roles: IS_AUTHENTICATED_ANONYMOUSLY }
