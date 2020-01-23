@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Event;
 use App\Entity\User;
 use App\Utils\Validated;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EventService extends Service
@@ -69,10 +70,13 @@ class EventService extends Service
 
     public function save($data)
     {
+        if (empty($data['user_id']))
+            throw new BadRequestHttpException("user_id is required");
+
         $user = $this->entityManager->getRepository(User::class)->find($data['user_id']);
         
         if (!$user)
-            throw new NotFoundHttpException("User not found");
+            throw new NotFoundHttpException("user not found");
 
         $event = new Event();
 
@@ -83,6 +87,8 @@ class EventService extends Service
               ->setPlace($data['place'])
               ->setUserId($data['user_id'])
               ->setStatus($data['status']);
+
+        Validated::entity($event);
         
         $this->entityManager->persist($event);
         $this->entityManager->flush();

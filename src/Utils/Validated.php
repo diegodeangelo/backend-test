@@ -52,6 +52,13 @@ class Validated
 		self::catchExceptions($violations);
 	}
 
+	public static function entity($entity)
+	{
+		$violations = Validation::createValidator()->validate($entity);
+
+		self::catchExceptions($violations);
+	}
+
 	public static function catchExceptions(?object $violations): void
 	{
 		if (empty($violations))

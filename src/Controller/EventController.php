@@ -48,6 +48,26 @@ class EventController extends AbstractController
     }
 
     /**
+     * @Route("/event/registration", name="event_show")
+     */
+    public function registration(Request $request)
+    {
+        $data = [
+            'name'          => $request->get('name'),
+            'description'   => $request->get('description'),
+            'date'          => $request->get('date'),
+            'time'          => $request->get('time'),
+            'place'         => $request->get('place'),
+            'user_id'       => $request->get('user_id'),
+            'status'        => $request->get('status')
+        ];
+
+        $result = json_encode($this->eventService->save($data));
+
+        return $this->json($result);
+    }
+
+    /**
      * @Route("/event/edit/{id}", name="event_new")
      */
     /*public function edit($id, Request $request, ValidatorInterface $validator, Security $security)

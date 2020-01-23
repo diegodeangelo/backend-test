@@ -104,7 +104,7 @@ class Event implements \JsonSerializable
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = Sanitize::string($name);
 
@@ -116,7 +116,7 @@ class Event implements \JsonSerializable
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(?string $description): self
     {
         $this->description = Sanitize::string($description);
 
@@ -128,7 +128,7 @@ class Event implements \JsonSerializable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -140,7 +140,7 @@ class Event implements \JsonSerializable
         return $this->time;
     }
 
-    public function setTime(\DateTimeInterface $time): self
+    public function setTime(?\DateTimeInterface $time): self
     {
         $this->time = $time;
 
@@ -152,7 +152,7 @@ class Event implements \JsonSerializable
         return $this->place;
     }
 
-    public function setPlace(string $place): self
+    public function setPlace(?string $place): self
     {
         $this->place = Sanitize::string($place);
 
@@ -164,7 +164,7 @@ class Event implements \JsonSerializable
         return $this->user;
     }
 
-    public function setUserId(integer $user_id) : integer
+    public function setUserId(?int $user_id) : self
     {
         $this->user_id = $user_id;
 
@@ -181,7 +181,7 @@ class Event implements \JsonSerializable
         return $this->status;
     }
 
-    public function setStatus(int $status): self
+    public function setStatus(?int $status): self
     {
         $this->status = $status;
 
