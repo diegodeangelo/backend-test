@@ -1,2 +1,9 @@
 api_login_check:
     path: /api/login_check
+# redirecting the homepage
+homepage:
+    path: /
+    controller: App\Controller\EventController::index
+    defaults:
+        path: /app/event/all
+        permanent: true
