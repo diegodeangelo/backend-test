@@ -33,7 +33,7 @@ class EventController extends AbstractController
             'place'         => $place
         ];
 
-        $events = json_encode($this->eventService->search($data, $page));
+        $events = $this->eventService->search($data, $page);
 
 		return $this->json($events);
     }
@@ -53,9 +53,9 @@ class EventController extends AbstractController
      */
     public function show($event_id)
     {
-    	$events = json_encode($this->eventService->show($event_id));
+    	$event = $this->eventService->show($event_id);
 
-    	return $this->json($events);
+    	return $this->json($event);
     }
 
     /**
@@ -80,4 +80,6 @@ class EventController extends AbstractController
 
         return new Response();
     }
+
+
 }
