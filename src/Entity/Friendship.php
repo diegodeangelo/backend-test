@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,25 +17,52 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Friendship
 {
     /**
+     * @var integer Friendship status rejected
+     */
+    const STATUS_REJECTED = 0;
+
+    /**
+     * @var integer Friendship status confirmed
+     */
+    const STATUS_CONFIRMED = 1;
+
+    /**
+     * @var integer Friendship status pending
+     */
+    const STATUS_PENDING = 2;
+
+    /**
      * @ORM\Id()
-     * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private $user_id;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $event_id;
-
-    /**
+     * @ORM\Id()
      * @ORM\Column(type="integer")
      */
     private $friend_id;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $status;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="myFriends")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(name="friend_id", referencedColumnName="id")
+     */
+    private $friend;
+
     public function __construct()
     {
-        $this->friend = new ArrayCollection();
+        $this->setStatus(self::STATUS_PENDING); // pending is the default status
     }
 
     public function getId(): ?int
@@ -42,41 +70,44 @@ class Friendship
         return $this->id;
     }
 
-    public function getEventId(): ?int
+    public function getUserId(): ?int
     {
-        return $this->event_id;
+        return $this->user_id;
     }
 
-    public function setEventId(int $user_id): self
+    public function setUserId(int $user_id): self
     {
-        $this->event_id = $event_id;
+        $this->user_id = $user_id;
 
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getFriendId(): Collection
+    public function getFriendId(): ?int
     {
         return $this->friend_id;
     }
 
-    public function addFriendId(User $friendId): self
+    public function setFriendId(int $friend_id): self
     {
-        if (!$this->friend_id->contains($friendId)) {
-            $this->friend_id[] = $friendId;
-        }
+        $this->friend_id = $friend_id;
 
         return $this;
     }
 
-    public function removeFriendId(User $friendId): self
+    public function getStatus(): ?int
     {
-        if ($this->friend_id->contains($friendId)) {
-            $this->friend_id->removeElement($friendId);
-        }
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
 
         return $this;
+    }
+
+    public function getUser()
+    {
+        return $this->friend;
     }
 }

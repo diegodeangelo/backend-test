@@ -1,8 +1,8 @@
 security:
     encoders:
         App\Entity\User:
-            algorithm: auto
-
+            algorithm: 'auto'
+    
     providers:
         users:
             entity:
@@ -33,8 +33,9 @@ security:
             stateless: true
             anonymous: true
         api:
-            pattern:   ^/api/
+            pattern: ^/api/
             stateless: true
+            anonymous: true
             guard:
                 provider: users
                 authenticators:
@@ -48,4 +49,4 @@ security:
         #- { path: ^/api/registration,   roles: IS_AUTHENTICATED_ANONYMOUSLY }
         #- { path: ^/api/event/new,      roles: IS_AUTHENTICATED_FULLY }
         #- { path: ^/api,                roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/event,                roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api,                roles: IS_AUTHENTICATED_ANONYMOUSLY }

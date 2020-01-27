@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Event;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -9,11 +10,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="invitation")
+ * @ORM\Table(name="event_participants")
  *
  * @Assert\Callback({"App\Utils\StatusValidator", "validate"})
  */
-class Invitation
+class EventParticipants
 {
     /**
      * @var integer Friendship status rejected
@@ -32,29 +33,36 @@ class Invitation
 
     /**
      * @ORM\Id()
-     * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private $event_id;
 
     /**
+     * @ORM\Id()
      * @ORM\Column(type="integer")
      */
-    private $user_id;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $friend_id;
+    private $participant_id;
 
     /**
      * @ORM\Column(type="integer")
      */
     private $status;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Event", inversedBy="myEvent")
+     * @ORM\JoinColumn(name="event_id", referencedColumnName="id")
+     */
+    private $event;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="eventParticipants")
+     * @ORM\JoinColumn(name="participant_id", referencedColumnName="id")
+     */
+    private $participant;
+
     public function __construct()
     {
-        $this->friend_id = new ArrayCollection();
+        $this->setStatus(self::STATUS_PENDING); // pending is the default status
     }
 
     public function getId(): ?int
@@ -74,28 +82,14 @@ class Invitation
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getFriendId(): Collection
+    public function getFriendId(): ?int
     {
         return $this->friend_id;
     }
 
-    public function addFriendId(User $friendId): self
+    public function setFriendId(int $friend_id): self
     {
-        if (!$this->friend_id->contains($friendId)) {
-            $this->friend_id[] = $friendId;
-        }
-
-        return $this;
-    }
-
-    public function removeFriendId(User $friendId): self
-    {
-        if ($this->friend_id->contains($friendId)) {
-            $this->friend_id->removeElement($friendId);
-        }
+        $this->friend_id = $friend_id;
 
         return $this;
     }
@@ -110,5 +104,10 @@ class Invitation
         $this->status = $status;
 
         return $this;
+    }
+
+    public function getUser()
+    {
+        return $this->friend;
     }
 }

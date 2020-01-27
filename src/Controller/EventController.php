@@ -18,7 +18,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/all", name="event_index")
+     * @Route("/events/")
      */
     public function index(Request $request)
     {
@@ -39,87 +39,45 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/show/{id}", name="event_show")
+     * @Route("/event/registration")
      */
-    public function show($id)
+    public function registration(Request $request)
     {
-    	$events = json_encode($this->eventService->show($id));
+        $this->eventService->save($request->request->all());
+
+        return new Response();
+    }
+
+    /**
+     * @Route("/event/{event_id}")
+     */
+    public function show($event_id)
+    {
+    	$events = json_encode($this->eventService->show($event_id));
 
     	return $this->json($events);
     }
 
     /**
-     * @Route("/event/registration", name="event_show")
+     * @Route("/event/{event_id}/cancel")
      */
-    public function registration(Request $request)
+    public function edit($event_id)
     {
-        $data = [
-            'name'          => $request->get('name'),
-            'description'   => $request->get('description'),
-            'date'          => $request->get('date'),
-            'time'          => $request->get('time'),
-            'place'         => $request->get('place'),
-            'user_id'       => $request->get('user_id'),
-            'status'        => $request->get('status')
-        ];
+        $data = $request->request->all();
+        $data['id'] = $event_id;
 
-        $result = json_encode($this->eventService->save($data));
+        $this->eventService->save($data);
 
-        return $this->json($result);
+        return new Response();
     }
 
     /**
-     * @Route("/event/edit/{id}", name="event_new")
+     * @Route("/event/{event_id}/cancel")
      */
-    /*public function edit($id, Request $request, ValidatorInterface $validator, Security $security)
+    public function cancel($event_id)
     {
-    	$name = $request->get("name");
-    	$email = $request->get("email");
-    	$description = $request->get("description");
-    	$date = $request->get("date");
-    	$time = $request->get("time");
-    	$place = $request->get("place");
-    	$status = $request->get("status") ?? App\Entity\User::STATUS_ACTIVE;
+        $this->eventService->save($event_id);
 
-    	if (isset($id)) {
-        	$user = $entityManager->getRepository(Event::class)->find($id);
-
-        	if (!$user) {
-		        throw $this->createNotFoundException(
-		            'No user found for id '.$id
-		        );
-		    }
-        } else {
-        	$user = new App\Entity\User();
-        }
-
-		$user->setName($name)
-			 ->setEmail($email)
-			 ->setDescription($description)
-			 ->setDate($date)
-			 ->setTime($time)
-			 ->setPlace($place)
-			 ->setUser($security->getUser())
-			 ->setStatus($status);
-
-		$errors = $validator->validate($user);
-
-        if (count($errors) > 0) {
-            return $this->json(["message" => $errors], 400);
-        }
-        
-        $entityManager = $this->getDoctrine()->getRepository(Event::class);
-
-        $entityManager->flush();
-    }*/
-
-    /**
-     * @Route("/event/cancel/{id}", name="event_new")
-     */
-    /*public function cancel($id, Request $request)
-    {
-    	$request->request->set('status', Event::STATUS_CANCELLED);
-
-    	$this->edit($id);
-    }*/
+        return new Response();
+    }
 }

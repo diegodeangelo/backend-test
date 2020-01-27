@@ -2,17 +2,19 @@
 
 namespace App\Entity;
 
+use App\Entity\Event;
+use App\Entity\Friendship;
 use App\Utils\Sanitize;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Security\Core\User\UserInterface; 
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="user")
  */
-class User
+class User implements \JsonSerializable, UserInterface
 {
     /**
      * @ORM\Id()
@@ -22,20 +24,16 @@ class User
     private $id;
 
     /**
-     * @Assert\NotBlank
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Email
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private $email;
 
     /**
-     * @Assert\NotBlank
      * @ORM\Column(type="string", length=255)
      */
     private $password;
@@ -46,28 +44,40 @@ class User
     private $bio;
 
     /**
-     * @Assert\Url
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $profile_picture;
 
     /**
-     * @Assert\NotBlank
      * @ORM\Column(type="string", length=255)
      */
     private $city;
 
     /**
-     * @Assert\NotBlank
      * @ORM\Column(type="string", length=255)
      */
     private $state;
 
-    
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Event", mappedBy="user")
+     */
+    private $events;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Friendship", mappedBy="user")
+     */
+    private $myFriends;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\EventParticipants", mappedBy="participant")
+     */
+    private $eventParticipants;
 
     public function __construct()
     {
-        //$this->friendships = new ArrayCollection();
+        $this->events = new ArrayCollection();
+        $this->myFriends = new ArrayCollection();
+        $this->event_participants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -80,7 +90,7 @@ class User
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = Sanitize::string($name);
 
@@ -92,7 +102,7 @@ class User
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {        
         $this->email = $email;
 
@@ -104,7 +114,7 @@ class User
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
@@ -140,7 +150,7 @@ class User
         return $this->city;
     }
 
-    public function setCity(string $city): self
+    public function setCity(?string $city): self
     {
         $this->city = Sanitize::string($city);
 
@@ -152,38 +162,55 @@ class User
         return $this->state;
     }
 
-    public function setState(string $state): self
+    public function setState(?string $state): self
     {
         $this->state = Sanitize::string($state);
 
         return $this;
     }
 
-    /**
-     * @return Collection|Friendship[]
-     */
-    /*public function getFriendships(): Collection
+    // Events
+    public function getEvents(): Collection
     {
-        return $this->friendships;
+        return $this->events;
     }
 
-    public function addFriendship(Friendship $friendship): self
+    // Friendships
+    public function getFriends(): Collection
     {
-        if (!$this->friendships->contains($friendship)) {
-            $this->friendships[] = $friendship;
-            $friendship->addFriendId($this);
-        }
-
-        return $this;
+        return $this->myFriends;
     }
 
-    public function removeFriendship(Friendship $friendship): self
+    public function jsonSerialize()
     {
-        if ($this->friendships->contains($friendship)) {
-            $this->friendships->removeElement($friendship);
-            $friendship->removeFriendId($this);
-        }
+        return [
+            'id'                => $this->getId(),
+            'name'              => $this->getName(),
+            'email'             => $this->getEmail(),
+            'bio'               => $this->getBio(),
+            'profile_picture'   => $this->getProfilePicture(),
+            'city'              => $this->getCity(),
+            'state'             => $this->getState(),
+        ];
+    }
 
-        return $this;
-    }*/
+    // Extra methods for UserInterface
+    public function getUsername()
+    {
+        return $this->email;
+    }
+
+    public function getSalt()
+    {
+        return null;
+    }
+
+    public function getRoles()
+    {
+        return array('ROLE_USER');
+    }
+
+    public function eraseCredentials()
+    {
+    }
 }

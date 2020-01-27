@@ -3,27 +3,39 @@ namespace App\Listeners;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Respect\Validation\Exceptions\ExceptionInterface;
 
-class ApiExceptionListeners
+class ApiExceptionListener
 {
     public function onKernelException(ExceptionEvent $event)
     {
         $exception = $event->getThrowable();
-
-        $response = new Response();
-
-        if (in_array(ExceptionInterface::class, class_implements($exception))) {
-            $response->headers->set('Content-Type', 'application/json');
-
-            $response->setContent(json_encode([
-                "code" => Response::HTTP_BAD_REQUEST,
-                "message" => $exception->getMessage()
-            ]));
-
-            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+        
+        if (get_class($exception) == "App\Exception\ValidationException") {
+            $event->setResponse($this->setCustomResponse(Response::HTTP_BAD_REQUEST, $exception));
+            return;
+        }
+        
+        if (in_array("Respect\Validation\Exceptions\ExceptionInterface", class_implements($exception))) {
+            $event->setResponse($this->setCustomResponse(Response::HTTP_BAD_REQUEST, $exception));
+            return;
         }
 
-        $event->setResponse($response);
+        $event->setResponse((new Response())->setContent($exception->getMessage()));
+    }
+
+    public function setCustomResponse(int $code, \Exception $exception)
+    {
+        $response = new Response();
+
+        $response->headers->set('Content-Type', 'application/json');
+
+        $response->setContent(json_encode([
+            "code" => $code,
+            "message" => $exception->getMessage()
+        ]));
+
+        $response->setStatusCode($code);
+
+        return $response;
     }
 }

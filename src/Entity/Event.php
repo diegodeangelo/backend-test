@@ -32,8 +32,6 @@ class Event implements \JsonSerializable
     private $id;
 
     /**
-     * @Assert\NotBlank
-     *
      * @ORM\Column(type="string", length=255)
      *
      * @var string Name of event
@@ -41,8 +39,6 @@ class Event implements \JsonSerializable
     private $name;
 
     /**
-     * @Assert\NotBlank
-     *
      * @ORM\Column(type="text")
      *
      * @var string Description of event
@@ -50,9 +46,6 @@ class Event implements \JsonSerializable
     private $description;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Date
-     *
      * @ORM\Column(type="date")
      *
      * @var string A "Y-m-d" formatted value
@@ -60,9 +53,6 @@ class Event implements \JsonSerializable
     private $date;
 
     /**
-     * @Assert\NotBlank
-     * @Assert\Time
-     *
      * @ORM\Column(type="time")
      *
      * @var string A "H:i:s" formatted value
@@ -70,29 +60,36 @@ class Event implements \JsonSerializable
     private $time;
 
     /**
-     * @Assert\NotBlank
-     *
      * @ORM\Column(type="string", length=255)
      */
     private $place;
 
     /**
-     * @Assert\NotBlank
-     *
      * @ORM\Column(type="integer")
      */
     private $user_id;
 
     /**
-     *
      * @ORM\Column(type="integer")
      */
     private $status;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\User")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="events")
      */
     private $user;
+
+     /**
+     * @ORM\OnetoMany(targetEntity="App\Entity\EventParticipants", mappedBy="event")
+     */
+    private $myEvents;
+
+    public function __construct()
+    {
+        $this->myEvents = new ArrayCollection();
+
+        $this->setStatus(self::STATUS_ACTIVE);
+    }
 
     public function getId(): ?int
     {
@@ -159,9 +156,9 @@ class Event implements \JsonSerializable
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUserId(): integer
     {
-        return $this->user;
+        return $this->user_id;
     }
 
     public function setUserId(?int $user_id) : self
@@ -169,11 +166,6 @@ class Event implements \JsonSerializable
         $this->user_id = $user_id;
 
         return $this;
-    }
-
-    public function getUserId(): integer
-    {
-        return $this->user_id;
     }
 
     public function getStatus(): ?int
@@ -184,6 +176,18 @@ class Event implements \JsonSerializable
     public function setStatus(?int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): ?User
+    {
+        $this->user = $user;
 
         return $this;
     }
