@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\EventParticipants;
 use App\Service\EventService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Respect\Validation\Validator as v;
 
 class EventController extends AbstractController
 {
@@ -89,13 +91,13 @@ class EventController extends AbstractController
         $status = $request->get("status");
 
         $statusValue = [
-            "reject"    => Friendship::STATUS_REJECTED,
-            "accept"    => Friendship::STATUS_CONFIRMED,
+            "reject"    => EventParticipants::STATUS_REJECTED,
+            "accept"    => EventParticipants::STATUS_CONFIRMED,
         ];
 
         v::in(array_keys($statusValue))->setName('Status')->check($status); // validate status
 
-        $this->eventService->updateInvitationsStatus($event_id, $status);
+        $this->eventService->updateInvitationStatus($event_id, $statusValue[$status]);
 
         return new Response();
     }
@@ -103,11 +105,11 @@ class EventController extends AbstractController
     /**
      * @Route("/event/{event_id}/invitation/send")
      */
-    public function sendinvitation($event_id)
+    public function sendInvitation($event_id)
     {
         $users_id = json_decode($request->get("users_id"));
 
-        $this->eventService->friendsInvitation($event_id, $users_id);
+        $this->eventService->inviteFriends($event_id, $users_id);
 
         return new Response();
     }

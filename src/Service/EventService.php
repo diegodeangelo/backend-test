@@ -73,30 +73,52 @@ class EventService extends Service
         $this->entityManager->flush();
     }
 
-    public function friendsInvitation($event_id, $users_id)
+    public function inviteFriends($event_id, $users_id)
     {
+        // Validation
+        v::NotBlank()->check($event_id);
         v::NotBlank()->check($users_id);
 
         $qb = $this->entityManager->getRepository(EventParticipants::class)->createQueryBuilder('e');
 
-        $qb->andWhere('e.event_id = :event_id')
-           ->andWhere('e.user_id IN (:users_id)')
-           ->setParameter('event_id', $event_id)
-           ->setParameter('users_id', implode(",", $users_id))
-           ->getQuery();
+        $qb = $qb->select('e.participant_id')
+                 ->andWhere('e.event_id = :event_id')
+                 ->andWhere('e.participant_id IN (' . implode(",", $users_id) . ')')
+                 ->setParameter('event_id', (int) $event_id)
+                 ->getQuery();
 
+        // Remove who was invited before
+        $usersIdWithNoInvitation = array_diff($users_id, array_map(function($item){
+            return $item["participant_id"];
+        }, $qb->getResult()));
+
+        $this->entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $eventParticipants = new EventParticipants();
+
+        foreach ($usersIdWithNoInvitation as $user_id) {
+            $eventParticipants->setEventId($event_id)
+                              ->setParticipantId($user_id);
+
+            $this->entityManager->persist($eventParticipants);
+        }
         $this->entityManager->flush();
-
-        $usersNoInvitation = $qb->getArrayResult();
-
     }
 
-    public function updateInvitationsStatus($event_id, $status)
+    public function updateInvitationStatus($event_id, $status)
     {
         $eventParticipants = $this->entityManager->getRepository(EventParticipants::class)->findOneBy([
-            "user_id"  => $this->security->getUser()->getId(),
+            "participant_id"  => $this->security->getUser()->getId(),
             "event_id" => $event_id,
         ]);
+
+        if (empty($eventParticipants))
+            throw new ValidationException("You have not been invited to participate in this event");
+
+        $event = $eventParticipants->getEvent();
+        $eventDate = sprintf("%s %s", $event->getDate()->format('Y-m-d'), $event->getTime()->format("H:i:s"));
+        
+        v::date()->max($eventDate)->setName('"Date"')->check(date("Y-m-d H:i:s"));
 
         $eventParticipants->setStatus($status);
 

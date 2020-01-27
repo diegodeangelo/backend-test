@@ -65,31 +65,26 @@ class EventParticipants
         $this->setStatus(self::STATUS_PENDING); // pending is the default status
     }
 
-    public function getId(): ?int
+    public function getEventId(): ?int
     {
-        return $this->id;
+        return $this->event_id;
     }
 
-    public function getUserId(): ?int
+    public function setEventId(int $event_id): self
     {
-        return $this->user_id;
-    }
-
-    public function setUserId(int $user_id): self
-    {
-        $this->user_id = $user_id;
+        $this->event_id = $event_id;
 
         return $this;
     }
 
-    public function getFriendId(): ?int
+    public function getParticipantId(): ?int
     {
-        return $this->friend_id;
+        return $this->participant_id;
     }
 
-    public function setFriendId(int $friend_id): self
+    public function setParticipantId(int $participant_id): self
     {
-        $this->friend_id = $friend_id;
+        $this->participant_id = $participant_id;
 
         return $this;
     }
@@ -106,8 +101,8 @@ class EventParticipants
         return $this;
     }
 
-    public function getUser()
+    public function getEvent()
     {
-        return $this->friend;
+        return $this->event;
     }
 }

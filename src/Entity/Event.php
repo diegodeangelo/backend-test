@@ -80,7 +80,7 @@ class Event implements \JsonSerializable
     private $user;
 
      /**
-     * @ORM\OnetoMany(targetEntity="App\Entity\EventParticipants", mappedBy="event")
+     * @ORM\OneToMany(targetEntity="App\Entity\EventParticipants", mappedBy="event")
      */
     private $myEvents;
 
@@ -156,7 +156,7 @@ class Event implements \JsonSerializable
         return $this;
     }
 
-    public function getUserId(): integer
+    public function getUserId()
     {
         return $this->user_id;
     }
