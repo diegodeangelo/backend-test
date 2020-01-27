@@ -63,7 +63,7 @@ class UserService extends Service
     	$this->entityManager->flush();
 	}
 
-	public function invitation($emailTo)
+	public function sendinvitation($emailTo)
 	{
 		v::email()->check($data['email']); //validate email
 
@@ -77,7 +77,7 @@ class UserService extends Service
 
     	$userFrom = $this->security->getUser();
 
-    	$message = (new \Swift_Message(sprintf("Invitation from %s", $userFrom->getName()))
+    	$message = (new \Swift_Message(sprintf("Invitation from %s", $userFrom->getName())))
 	        ->setFrom($userFrom->getEmail())
 	        ->setTo($emailTo)
 	        ->setBody(

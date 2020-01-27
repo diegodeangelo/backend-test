@@ -59,7 +59,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/cancel")
+     * @Route("/event/{event_id}/edit")
      */
     public function edit($event_id)
     {
@@ -81,5 +81,34 @@ class EventController extends AbstractController
         return new Response();
     }
 
+    /**
+     * @Route("/event/{event_id}/invitation")
+     */
+    public function updateStatusInvitation($event_id, Request $request)
+    {
+        $status = $request->get("status");
 
+        $statusValue = [
+            "reject"    => Friendship::STATUS_REJECTED,
+            "accept"    => Friendship::STATUS_CONFIRMED,
+        ];
+
+        v::in(array_keys($statusValue))->setName('Status')->check($status); // validate status
+
+        $this->eventService->updateInvitationsStatus($event_id, $status);
+
+        return new Response();
+    }
+
+    /**
+     * @Route("/event/{event_id}/invitation/send")
+     */
+    public function sendinvitation($event_id)
+    {
+        $users_id = json_decode($request->get("users_id"));
+
+        $this->eventService->friendsInvitation($event_id, $users_id);
+
+        return new Response();
+    }
 }

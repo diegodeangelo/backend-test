@@ -73,9 +73,40 @@ class EventService extends Service
         $this->entityManager->flush();
     }
 
+    public function friendsInvitation($event_id, $users_id)
+    {
+        v::NotBlank()->check($users_id);
+
+        $qb = $this->entityManager->getRepository(EventParticipants::class)->createQueryBuilder('e');
+
+        $qb->andWhere('e.event_id = :event_id')
+           ->andWhere('e.user_id IN (:users_id)')
+           ->setParameter('event_id', $event_id)
+           ->setParameter('users_id', implode(",", $users_id))
+           ->getQuery();
+
+        $this->entityManager->flush();
+
+        $usersNoInvitation = $qb->getArrayResult();
+
+    }
+
+    public function updateInvitationsStatus($event_id, $status)
+    {
+        $eventParticipants = $this->entityManager->getRepository(EventParticipants::class)->findOneBy([
+            "user_id"  => $this->security->getUser()->getId(),
+            "event_id" => $event_id,
+        ]);
+
+        $eventParticipants->setStatus($status);
+
+        $this->entityManager->persist($eventParticipants);
+        $this->entityManager->flush();
+    }
+
     public function save($data)
     {
-        $isUpdate = v::key('id')->check($data);
+        $isUpdate = v::key('id')->validate($data);
 
         if ($isUpdate) {
             $event = $this->entityManager->getRepository(Event::class)->find($data['id']);
