@@ -1,7 +1,7 @@
 
 # Requirements
 - php >= 7.2.5
-- Openssl
+- OpenSSL
 
 # Build
 For build this project, run code above:
@@ -21,7 +21,6 @@ $ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 - Assign permission to execute in the two files generate:
 ``` bash
 $ chmod oug+x config/jwt/*
-$
 ```
 
 # Third-party libraries
