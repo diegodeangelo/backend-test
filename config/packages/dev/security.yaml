@@ -28,6 +28,10 @@ security:
             pattern: ^/api/events
             stateless: true
             anonymous: true
+        event_public:
+            pattern: ^/api/event/(\d+)
+            stateless: true
+            anonymous: true
         registration_public:
             pattern: ^/api/user/registration
             stateless: true
@@ -44,9 +48,8 @@ security:
             anonymous: lazy
 
     access_control:
-        #- { path: ^/api/login,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        #- { path: ^/api/event,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        #- { path: ^/api/registration,   roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        #- { path: ^/api/event/new,      roles: IS_AUTHENTICATED_FULLY }
-        #- { path: ^/api,                roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api,                roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/login,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/registration,   roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/events,         roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/event/(\d+),    roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api,                roles: IS_AUTHENTICATED_FULLY }
