@@ -1,6 +1,7 @@
 
 # Requirements
 - php >= 7.2.5
+- Openssl
 
 # Build
 For build this project, run code above:
@@ -8,7 +9,7 @@ For build this project, run code above:
 composer install
 ```
 
-#Instructions
+# Instructions
 - Edit the DATABASE_URL in .env;
 - Generate the SSH keys int project dir:
 
@@ -17,7 +18,11 @@ $ mkdir -p config/jwt
 $ openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
 $ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 ```
-- Assign permission to execute (_+x_) in the two files generate.
+- Assign permission to execute in the two files generate:
+``` bash
+$ chmod oug+x config/jwt/*
+$
+```
 
 # Third-party libraries
 - **Symfony**: faster and flexible web applications development and consome less memory then other frameworks;
