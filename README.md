@@ -27,4 +27,3 @@ $ chmod oug+x config/jwt/*
 - **Doctrine**: ORM with integration to Symfony;
 - **Respect Validation** (https://github.com/Respect/Validation): package simple and powerful to validate various inputs;
 - **JWT Authentication** (https://github.com/lexik/LexikJWTAuthenticationBundle): package implements JWT (Json Web Token) in authentication service of Symfony.
->>>>>>> development-api
