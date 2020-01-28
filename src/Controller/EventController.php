@@ -20,7 +20,20 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/events/", methods={"GET"})
+     * @api {get} /api/events Show all events
+     * @apiGroup Event
+     * @apiParam {Integer} page The page of results.
+     * @apiParam {Date} dateStart The start date of events.
+     * @apiParam {Date} dateEnd The end date of events.
+     * @apiParam {String} place The place events (the api use %place% format).
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
+
+    /**
+     * @Route("/events", methods={"GET"})
      */
     public function index(Request $request)
     {
@@ -41,6 +54,19 @@ class EventController extends AbstractController
     }
 
     /**
+     * @api {POST} /api/event/registration Register an event
+     * @apiGroup Event
+     * @apiParam {String} name The name of event.
+     * @apiParam {String} description The description of event.
+     * @apiParam {Date} date The date of event.
+     * @apiParam {String} place The place of event.
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
+
+    /**
      * @Route("/event/registration", methods={"POST"})
      */
     public function registration(Request $request)
@@ -51,6 +77,16 @@ class EventController extends AbstractController
     }
 
     /**
+     * @api {get} /api/event/:event_id Show details of an event
+     * @apiGroup Event
+     * @apiParam {Integer} event_id The ID of event.
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
+
+    /**
      * @Route("/event/{event_id}", methods={"GET"}, requirements={"event_id"="\d+"})
      */
     public function show($event_id)
@@ -59,6 +95,16 @@ class EventController extends AbstractController
 
     	return $this->json($event);
     }
+
+    /**
+     * @api {put} /api/event/:event_id Update an event
+     * @apiGroup Event
+     * @apiParam {Integer} event_id The ID of event.
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
 
     /**
      * @Route("/event/{event_id}", methods={"PUT"}, requirements={"event_id"="\d+"})
@@ -74,7 +120,17 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/cancel", methods={"DELETE"}, requirements={"event_id"="\d+"})
+     * @api {DELETE} /api/event/:event_id Cancel an event
+     * @apiGroup Event
+     * @apiParam {Integer} event_id The ID of event.
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
+
+    /**
+     * @Route("/event/{event_id}", methods={"DELETE"}, requirements={"event_id"="\d+"})
      */
     public function cancel($event_id)
     {
@@ -82,6 +138,17 @@ class EventController extends AbstractController
 
         return new Response();
     }
+
+    /**
+     * @api {put} /api/event/:event_id/invitation Update an invitation
+     * @apiGroup Event
+     * @apiParam {Integer} event_id The ID of event.
+     * @apiParam {String} status The status of user: reject or accept.
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
 
     /**
      * @Route("/event/{event_id}/invitation", methods={"PUT"}, requirements={"event_id"="\d+"})
@@ -103,7 +170,18 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/invitation/send", methods={"POST"}, requirements={"event_id"="\d+"})
+     * @api {post} /api/event/:event_id/invitation Update an invitation
+     * @apiGroup Event
+     * @apiParam {Integer} event_id The ID of event.
+     * @apiParam {String} users_id The users to send invitation in json format.
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
+
+    /**
+     * @Route("/event/{event_id}/invitation", methods={"POST"}, requirements={"event_id"="\d+"})
      */
     public function sendInvitation($event_id)
     {
@@ -115,7 +193,17 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/invitation/send/toall", methods={"POST"}, requirements={"event_id"="\d+"})
+     * @api {post} /api/event/:event_id/invitation Update an invitation
+     * @apiGroup Event
+     * @apiParam {Integer} event_id The ID of event.
+     * @apiSuccessExample {json} Success-Response:
+     *     HTTP/1.1 200 OK
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 400 Bad Request
+     */
+
+    /**
+     * @Route("/event/{event_id}/invitation/toall", methods={"POST"}, requirements={"event_id"="\d+"})
      */
     public function sendInvitationToAll($event_id)
     {
