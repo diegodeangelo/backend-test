@@ -22,6 +22,8 @@ $ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 $ chmod oug+x config/jwt/*
 ```
 
+- You should get your token in */api/login_check* and use in the restricted area with Authorization header in requests (see the documentation).
+
 # Third-party libraries
 - **Symfony**: faster and flexible web applications development and consome less memory then other frameworks;
 - **Doctrine**: ORM with integration to Symfony;
