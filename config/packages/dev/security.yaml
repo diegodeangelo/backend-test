@@ -1,0 +1,52 @@
+security:
+    encoders:
+        App\Entity\User:
+            algorithm: 'auto'
+    
+    providers:
+        users:
+            entity:
+                # the class of the entity that represents users
+                class: 'App\Entity\User'
+                # the property to query by - e.g. username, email, etc
+                property: 'email'
+    
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        login:
+            pattern:  ^/api/login
+            stateless: true
+            anonymous: true
+            provider: users
+            json_login:
+                check_path:               /api/login_check
+                success_handler:          lexik_jwt_authentication.handler.authentication_success
+                failure_handler:          lexik_jwt_authentication.handler.authentication_failure
+        event_public:
+            pattern: ^/api/event
+            stateless: true
+            anonymous: true
+        registration_public:
+            pattern: ^/api/user/registration
+            stateless: true
+            anonymous: true
+        api:
+            pattern: ^/api/
+            stateless: true
+            anonymous: true
+            guard:
+                provider: users
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+        main:
+            anonymous: lazy
+
+    access_control:
+        #- { path: ^/api/login,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        #- { path: ^/api/event,          roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        #- { path: ^/api/registration,   roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        #- { path: ^/api/event/new,      roles: IS_AUTHENTICATED_FULLY }
+        #- { path: ^/api,                roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api,                roles: IS_AUTHENTICATED_ANONYMOUSLY }
