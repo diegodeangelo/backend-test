@@ -140,7 +140,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @api {put} /api/event/:event_id/invitation Update an invitation
+     * @api {put} /api/event/:event_id/invitation Update status of invitation
      * @apiGroup Event
      * @apiParam {Integer} event_id The ID of event.
      * @apiParam {String} status The status of user: reject or accept.
@@ -170,7 +170,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @api {post} /api/event/:event_id/invitation Update an invitation
+     * @api {post} /api/event/:event_id/invitation Send an invitation to some friends
      * @apiGroup Event
      * @apiParam {Integer} event_id The ID of event.
      * @apiParam {String} users_id The users to send invitation in json format.
@@ -193,7 +193,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @api {post} /api/event/:event_id/invitation Update an invitation
+     * @api {post} /api/event/:event_id/invitation/toall Send an invitation to all friends
      * @apiGroup Event
      * @apiParam {Integer} event_id The ID of event.
      * @apiSuccessExample {json} Success-Response:
