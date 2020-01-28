@@ -44,7 +44,7 @@ class PrivateApiControllerTest extends WebTestCase
 	public function endpointUrlProvider()
     {
 		return [
-			["/api/event/all"]
+			["/api/events"]
 		];
     }
 }
