@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Friendship;
+use App\Entity\EventParticipants;
 use App\Service\UserService;
+use App\Service\EventService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,13 +16,14 @@ class UserController extends AbstractController
 {
     private $userService;
 
-    public function __construct(UserService $userService)
+    public function __construct(UserService $userService, EventService $eventService)
     {
         $this->userService = $userService;
+        $this->eventService = $eventService;
     }
 
 	 /**
-     * @Route("/user/signup")
+     * @Route("/user/signup", methods={"POST"})
      */
     public function signup(Request $request)
     {
@@ -30,7 +33,7 @@ class UserController extends AbstractController
 	}
 
     /**
-     * @Route("/user/friends/{status}", requirements={"status"="[a-zA-Z]+"})
+     * @Route("/user/friends/{status}", methods={"GET"}, requirements={"status"="[a-zA-Z]+"})
      */
     public function viewFriends($status = null)
     {
@@ -73,7 +76,54 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/user/invitation/{invitation_id}/delete", methods={"DELETE"}, requirements={"invitation_id"="\d+"})
+     * @Route("/user/events/{status}", methods={"GET"}, requirements={"status"="[a-zA-Z]+"})
+     */
+    public function getEventsParticipating($status = null)
+    {
+        $statusValue = [
+            "rejected"  => EventParticipants::STATUS_REJECTED,
+            "confirmed" => EventParticipants::STATUS_CONFIRMED,
+            "pending"   => EventParticipants::STATUS_PENDING,
+        ];
+
+        if (!is_null($status)) {
+            v::in(array_keys($statusValue))->setName('Event status')->check($status); // validate status
+            
+            $participating = $this->eventService->getEventsParticipatingByStatus($statusValue[$status]);
+
+            return $this->json($participating);
+        }
+
+        $participating = $this->eventService->getEventsParticipatingByStatus();
+
+        return $this->json($participating);
+    }
+
+    /**
+     * @Route("/user/myevents/{status}", methods={"GET"}, requirements={"status"="[a-zA-Z]+"})
+     */
+    public function getMyEvents($status = null)
+    {
+        $statusValue = [
+            "cancelled" => Event::STATUS_CANCELLED,
+            "active"    => Event::STATUS_ACTIVE,
+        ];
+
+        if (!is_null($status)) {
+            v::in(array_keys($statusValue))->setName('Event status')->check($status); // validate status
+            
+            $events = $this->eventService->getMyEvents($statusValue[$status]);
+
+            return $this->json($events);
+        }
+
+        $events = $this->eventService->getMyEvents();
+
+        return $this->json($events);
+    }
+
+    /**
+     * @Route("/user/invitation/{invitation_id}", methods={"DELETE"}, requirements={"invitation_id"="\d+"})
      */
     public function deleteInvitation($invitation_id)
     {

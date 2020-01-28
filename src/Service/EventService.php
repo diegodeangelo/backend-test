@@ -3,10 +3,12 @@
 namespace App\Service;
 
 use App\Entity\Event;
+use App\Entity\User;
 use App\Entity\EventParticipants;
 use App\Service\Service;
 use Respect\Validation\Validator as v;
 use App\Exception\ValidationException;
+use Doctrine\Common\Collections\Criteria;
 
 class EventService extends Service
 {
@@ -73,6 +75,16 @@ class EventService extends Service
         $this->entityManager->flush();
     }
 
+    public function inviteAllFriends($event_id)
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($this->security->getUser()->getId());
+
+        foreach ($user->getFriends() as $friend)
+            $users_id[] = $friend->getUser()->getId();
+
+        $this->inviteFriends($event_id, $users_id);
+    }
+
     public function inviteFriends($event_id, $users_id)
     {
         // Validation
@@ -92,17 +104,37 @@ class EventService extends Service
             return $item["participant_id"];
         }, $qb->getResult()));
 
-        $this->entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
+        if (count($usersIdWithNoInvitation) == 0) return;
 
-        $eventParticipants = new EventParticipants();
+        $usersIdWithNoInvitation = array_values($usersIdWithNoInvitation);
 
-        foreach ($usersIdWithNoInvitation as $user_id) {
-            $eventParticipants->setEventId($event_id)
-                              ->setParticipantId($user_id);
+        $this->entityManager->getConnection()->getConfiguration()->setSQLLogger(null); // disable logger for fast batch insert
+        
+        // Batch insert for smoothly process
+        $batchSize = 20;
 
+        for ($i = 0; $i < count($usersIdWithNoInvitation); $i++) {
+            $event = $this->entityManager->getRepository(Event::class)->find($event_id);
+            $user = $this->entityManager->getRepository(User::class)->find($usersIdWithNoInvitation[$i]);
+            
+            if (empty($event) || empty($user)) throw new ValidationException("User or event dont exists");
+            ;
+
+            $eventParticipants = new EventParticipants();
+
+            $eventParticipants->setEvent($event)
+                              ->setParticipant($user);
+            
             $this->entityManager->persist($eventParticipants);
+
+            if (($i % $batchSize) === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+            }
         }
+
         $this->entityManager->flush();
+        $this->entityManager->clear();
     }
 
     public function updateInvitationStatus($event_id, $status)
@@ -124,6 +156,44 @@ class EventService extends Service
 
         $this->entityManager->persist($eventParticipants);
         $this->entityManager->flush();
+    }
+
+    public function getEventsParticipatingByStatus($status = null)
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($this->security->getUser()->getId());
+        $participating = $user->getEventsParticipants();
+
+        if (!is_null($status)) {
+            $criteria = Criteria::create();
+            $criteria->Where(Criteria::expr()->eq('status', $status));
+
+            $participating = $participating->matching($criteria);
+        }
+
+        $events = array_map(function($participate){
+            return $participate->getEvent()->jsonSerialize();
+        }, $participating->toArray());
+
+        return $events;
+    }
+
+    public function getMyEvents($status = null)
+    {
+        $user = $this->entityManager->getRepository(User::class)->find($this->security->getUser()->getId());
+        $events = $user->getEvents();
+
+        if (!is_null($status)) {
+            $criteria = Criteria::create();
+            $criteria->Where(Criteria::expr()->eq('status', $status));
+
+            $events = $events->matching($criteria);
+        }
+
+        $events = array_map(function($event){
+            return $event->getEvent()->jsonSerialize();
+        }, $events->toArray());
+
+        return $events;
     }
 
     public function save($data)

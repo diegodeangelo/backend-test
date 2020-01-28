@@ -20,7 +20,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/events/")
+     * @Route("/events/", methods={"GET"})
      */
     public function index(Request $request)
     {
@@ -41,7 +41,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/registration")
+     * @Route("/event/registration", methods={"POST"})
      */
     public function registration(Request $request)
     {
@@ -51,7 +51,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}")
+     * @Route("/event/{event_id}", methods={"GET"}, requirements={"event_id"="\d+"})
      */
     public function show($event_id)
     {
@@ -61,7 +61,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/edit")
+     * @Route("/event/{event_id}", methods={"PUT"}, requirements={"event_id"="\d+"})
      */
     public function edit($event_id)
     {
@@ -74,7 +74,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/cancel")
+     * @Route("/event/{event_id}/cancel", methods={"DELETE"}, requirements={"event_id"="\d+"})
      */
     public function cancel($event_id)
     {
@@ -84,7 +84,7 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/invitation")
+     * @Route("/event/{event_id}/invitation", methods={"PUT"}, requirements={"event_id"="\d+"})
      */
     public function updateStatusInvitation($event_id, Request $request)
     {
@@ -103,13 +103,23 @@ class EventController extends AbstractController
     }
 
     /**
-     * @Route("/event/{event_id}/invitation/send")
+     * @Route("/event/{event_id}/invitation/send", methods={"POST"}, requirements={"event_id"="\d+"})
      */
     public function sendInvitation($event_id)
     {
         $users_id = json_decode($request->get("users_id"));
 
         $this->eventService->inviteFriends($event_id, $users_id);
+
+        return new Response();
+    }
+
+    /**
+     * @Route("/event/{event_id}/invitation/send/toall", methods={"POST"}, requirements={"event_id"="\d+"})
+     */
+    public function sendInvitationToAll($event_id)
+    {
+        $this->eventService->inviteAllFriends($event_id);
 
         return new Response();
     }

@@ -62,31 +62,7 @@ class EventParticipants
 
     public function __construct()
     {
-        $this->setStatus(self::STATUS_PENDING); // pending is the default status
-    }
-
-    public function getEventId(): ?int
-    {
-        return $this->event_id;
-    }
-
-    public function setEventId(int $event_id): self
-    {
-        $this->event_id = $event_id;
-
-        return $this;
-    }
-
-    public function getParticipantId(): ?int
-    {
-        return $this->participant_id;
-    }
-
-    public function setParticipantId(int $participant_id): self
-    {
-        $this->participant_id = $participant_id;
-
-        return $this;
+        $this->setStatus(self::STATUS_PENDING); // pending is the default status)
     }
 
     public function getStatus(): ?int
@@ -104,5 +80,26 @@ class EventParticipants
     public function getEvent()
     {
         return $this->event;
+    }
+
+    public function setEvent(Event $event)
+    {
+        $this->event = $event;
+        $this->event_id = $event->getId();
+
+        return $this;
+    }
+
+    public function getParticipant()
+    {
+        return $this->participant;
+    }
+
+    public function setParticipant(User $user)
+    {
+        $this->participant = $user;
+        $this->participant_id = $user->getId();
+
+        return $this;
     }
 }

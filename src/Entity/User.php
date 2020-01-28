@@ -175,6 +175,12 @@ class User implements \JsonSerializable, UserInterface
         return $this->events;
     }
 
+    // Event participant
+    public function getEventsParticipants(): Collection
+    {
+        return $this->eventParticipants;
+    }
+
     // Friendships
     public function getFriends(): Collection
     {
