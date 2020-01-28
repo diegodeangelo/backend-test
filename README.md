@@ -21,7 +21,6 @@ $ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 - Assign permission to execute in the two files generate:
 ``` bash
 $ chmod oug+x config/jwt/*
-$
 ```
 
 # Third-party libraries
